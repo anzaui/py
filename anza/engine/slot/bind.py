@@ -1,3 +1,5 @@
+"""Binding values into parsed templates."""
+
 import json
 from typing import Any, Optional
 from .escape import escape_html
@@ -120,7 +122,36 @@ class Renderer:
 
 
 def string(chunks: list[Chunk], params: Any = None, escape: bool = False) -> str:
-    """Bind ``params`` into ``chunks``. With ``escape``, ``{{slot}}`` values
-    are HTML-escaped; ``{{{raw}}}`` values never are. Compiles each call:
-    keep a ``Template`` (or a ``Renderer``) to bind repeatedly."""
+    """Bind ``params`` into parsed chunks.
+
+    Values become text as the contract specifies: strings as is, ``True`` /
+    ``False`` as ``true`` / ``false``, integers in decimal, integral floats
+    without ``.0``, dicts, lists and tuples as compact JSON, and a missing
+    key or ``None`` as nothing. Objects are read through their public,
+    non-callable attributes only: ``{{__class__}}`` or a method name renders
+    empty.
+
+    This compiles the chunks on every call; keep a :class:`~anza.Template` to
+    bind the same template repeatedly.
+
+    Args:
+        chunks: The output of :func:`~anza.extract`.
+        params: A dict, ``(key, value)`` pairs, or any object.
+        escape: HTML-escape ``{{slot}}`` values; ``{{{raw}}}`` values never
+            are.
+
+    Returns:
+        str: The rendered text.
+
+    Example:
+        >>> from anza import extract, string
+        >>> chunks = extract("<b>{{name}}</b> {{{note}}} {{n}} {{tags}}")
+        >>> string(chunks, {"name": "<i>", "note": "<em>ok</em>", "n": 2.0, "tags": ["a"]})
+        '<b><i></b> <em>ok</em> 2 ["a"]'
+        >>> string(chunks, {"name": "<i>", "note": "<em>ok</em>"}, escape=True)
+        '<b>&lt;i&gt;</b> <em>ok</em>  '
+
+    Warning:
+        Without ``escape=True`` values are inserted without HTML escaping.
+    """
     return Renderer(chunks, escape)(params)

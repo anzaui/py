@@ -1,3 +1,5 @@
+"""HKDF-SHA256 key derivation (available as ``anza.hkdf``)."""
+
 import hashlib
 from typing import Union, Optional
 from ..errors import AnzaError
@@ -9,6 +11,29 @@ def derive_key(
     info: Union[str, bytes] = "anza-stui-session-v1",
     keylen: int = 32,
 ) -> bytes:
+    """Derive a key with HKDF-SHA256 (RFC 5869).
+
+    Use it to turn one master secret into separate keys per purpose (for
+    example an HMAC envelope secret per service).
+
+    Args:
+        ikm: Input keying material (the master secret).
+        salt: Optional salt; empty when omitted.
+        info: Context string that separates the derived keys.
+        keylen: Length of the derived key, in bytes.
+
+    Returns:
+        bytes: ``keylen`` bytes of key material.
+
+    Raises:
+        AnzaError: ``CRYPTO`` when derivation fails (e.g. ``keylen`` too large).
+
+    Example:
+        >>> from anza import hkdf
+        >>> key = hkdf.derive_key("master secret", info="feed-envelopes")
+        >>> len(key)
+        32
+    """
     try:
         ikm_bytes = ikm.encode("utf-8") if isinstance(ikm, str) else ikm
         salt_bytes = (salt.encode("utf-8") if isinstance(salt, str) else salt) if salt else b""

@@ -1,4 +1,5 @@
-"""Envelope signatures, wire format v2 (see ``docs/engines/contract.md``).
+"""Envelope signatures, wire format v2 (see the `Engine Contract
+<https://github.com/anzaui/anza/blob/main/docs/engines/contract.md>`_).
 
 ::
 
@@ -34,24 +35,68 @@ def _field(value: str) -> bytes:
 
 
 def signature_message(ts: int, slot: str, html: str, css: Optional[str] = None) -> bytes:
-    """The exact bytes a v2 signature covers."""
+    """The exact bytes a v2 envelope signature covers.
+
+    Every field is length-prefixed, so no two different envelopes produce
+    the same message.
+
+    Args:
+        ts: The envelope timestamp, in Unix seconds.
+        slot: The envelope slot.
+        html: The envelope HTML.
+        css: The envelope CSS; ``None`` signs as the empty string.
+
+    Returns:
+        bytes: ``anza-sig-v2\\n`` followed by ``<len>:<value>\\n`` for ``ts``,
+        ``slot``, ``html`` and ``css``.
+
+    Example:
+        >>> from anza import signature_message
+        >>> signature_message(1700000000, "feed", "<p>Hi</p>")
+        b'anza-sig-v2\\n10:1700000000\\n4:feed\\n9:<p>Hi</p>\\n0:\\n'
+    """
     return SIGNATURE_DOMAIN + _field(str(ts)) + _field(slot) + _field(html) + _field(css or "")
 
 
 @dataclass(frozen=True)
 class VerifyKey:
-    """The key that checks an envelope signature."""
+    """The key :func:`verify_envelope` checks a signature with.
 
+    Build it with :meth:`hmac` or :meth:`ed25519`. The key is validated when
+    it is used: a short HMAC secret or a malformed public key fails the
+    verification with ``CRYPTO`` ``invalid verification key``. ``repr`` never
+    prints the key.
+
+    Example:
+        >>> from anza import VerifyKey
+        >>> VerifyKey.hmac("a-secret-of-at-least-32-bytes!!!")
+        VerifyKey(mode='hmac', key=<redacted>)
+    """
+
+    #: ``"hmac"`` or ``"ed25519"``.
     mode: str
+    #: The shared HMAC secret.
     secret: Union[str, bytes, None] = None
+    #: The Ed25519 public key.
     public_key: Any = None
 
     @classmethod
     def hmac(cls, secret: Union[str, bytes]) -> "VerifyKey":
+        """A key for HMAC-SHA256 envelopes.
+
+        Args:
+            secret: The shared secret, at least 32 bytes.
+        """
         return cls(mode="hmac", secret=secret)
 
     @classmethod
     def ed25519(cls, public_key: Any) -> "VerifyKey":
+        """A key for Ed25519 envelopes.
+
+        Args:
+            public_key: 32 bytes, 64-char lowercase hex, or an
+                ``Ed25519PublicKey``.
+        """
         return cls(mode="ed25519", public_key=public_key)
 
     def __repr__(self) -> str:
@@ -109,11 +154,53 @@ def verify_envelope(
     skew_secs: int = DEFAULT_SKEW_SECS,
     now: Optional[int] = None,
 ) -> None:
-    """Verify a received envelope (an ``Envelope`` or a parsed JSON dict):
-    version, signature format, freshness (``max_age_secs``, plus ``skew_secs``
-    into the future), the expected ``slot``, then the signature
-    (constant-time). Raises ``AnzaError`` with code ``CRYPTO`` whose message
-    names the failed check; returns ``None`` when valid."""
+    """Verify a received envelope.
+
+    The checks run in order, and the first failure raises:
+
+    1. the key is usable (``invalid verification key``);
+    2. ``v`` is 2 (``unsupported envelope version``);
+    3. ``ts`` is a non-negative integer, ``slot`` and ``html`` are strings,
+       ``css`` is absent or a string (``malformed envelope``);
+    4. ``sig`` is present (``envelope is not signed``) and lowercase hex
+       (``malformed signature``);
+    5. ``ts`` is at most ``skew_secs`` ahead of ``now`` (``envelope timestamp
+       is in the future``) and at most ``max_age_secs`` old (``envelope
+       expired``);
+    6. the envelope is for ``slot`` (``slot mismatch``);
+    7. the signature over :func:`signature_message` matches, compared in
+       constant time (``bad signature``).
+
+    Args:
+        key: The verification key, see :class:`VerifyKey`.
+        envelope: An :class:`~anza.Envelope` or the parsed JSON ``dict``.
+        max_age_secs: Oldest accepted envelope, in seconds.
+        slot: The slot the envelope must be for.
+        skew_secs: Tolerance for a timestamp ahead of the verifier's clock.
+        now: The current Unix time (defaults to ``time.time()``).
+
+    Returns:
+        None: When the envelope is valid.
+
+    Raises:
+        AnzaError: ``CRYPTO``, with the failed check as the message.
+
+    Example:
+        >>> from anza import Envelope, VerifyKey, hmac, verify_envelope
+        >>> secret = "a-secret-of-at-least-32-bytes!!!"
+        >>> env = Envelope(slot="feed", ts=1700000000, html="<p>Hi</p>")
+        >>> env.sig = hmac.sign(secret, env.message())
+        >>> key = VerifyKey.hmac(secret)
+        >>> verify_envelope(key, env.to_dict(), max_age_secs=60, slot="feed", now=1700000010)
+        >>> verify_envelope(key, env.to_dict(), max_age_secs=60, slot="feed", now=1700000100)
+        Traceback (most recent call last):
+            ...
+        anza.errors.AnzaError: [Anza:CRYPTO] envelope expired
+
+    Warning:
+        A valid signature alone does not stop replays: always pass the slot
+        you expect and a ``max_age_secs`` that fits the use.
+    """
     if key.mode == "hmac":
         secret = key.secret.encode("utf-8") if isinstance(key.secret, str) else key.secret
         if not isinstance(secret, (bytes, bytearray)) or len(secret) < HMAC_MIN_SECRET:

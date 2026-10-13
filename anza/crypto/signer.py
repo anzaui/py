@@ -68,9 +68,30 @@ def _secret_bytes(secret: Any) -> bytes:
 
 
 class Signer:
-    """A validated signing key, built once at setup. A running engine never
-    signs with a missing, short or mismatched key; ``repr`` never prints key
-    material."""
+    """A validated signing key, built once at setup.
+
+    :meth:`Setup.run() <anza.Setup.run>` builds it from
+    :class:`~anza.SignOptions` with :meth:`from_options` and stores it as
+    :attr:`Engine.signer <anza.Engine.signer>`. A running engine never signs
+    with a missing, short or mismatched key, and ``repr`` never prints key
+    material.
+
+    Attributes:
+        mode: ``"none"``, ``"hmac"`` or ``"ed25519"``.
+
+    Example:
+        >>> from anza import Signer, SignOptions
+        >>> signer = Signer.from_options(SignOptions(mode="hmac", secret="k" * 32))
+        >>> signer
+        Signer(mode='hmac', key=<redacted>)
+        >>> sig = signer.sign(b"message")
+        >>> signer.verify(b"message", sig), signer.verify(b"other", sig)
+        (True, False)
+        >>> Signer.from_options(SignOptions(mode="hmac", secret="short"))
+        Traceback (most recent call last):
+            ...
+        anza.errors.AnzaError: [Anza:CRYPTO] HMAC secret must be at least 32 bytes
+    """
 
     __slots__ = ("mode", "_hmac", "_ed25519", "_public")
 
@@ -82,8 +103,19 @@ class Signer:
 
     @classmethod
     def from_options(cls, options: Any) -> "Signer":
-        """Validate ``options`` (a ``SignOptions``) and decode its keys.
-        Raises ``AnzaError`` with code ``CRYPTO`` on bad keys."""
+        """Validate ``options`` and decode its keys.
+
+        Args:
+            options: A :class:`~anza.SignOptions`; ``None`` disables signing.
+
+        Returns:
+            Signer: The validated signer.
+
+        Raises:
+            AnzaError: ``CRYPTO`` for an HMAC secret shorter than 32 bytes or
+                not str/bytes, a missing or malformed Ed25519 private key, a
+                public key that does not match it, or an unknown mode.
+        """
         signer = cls()
         mode = getattr(options, "mode", "none") if options is not None else "none"
         signer.mode = mode
@@ -109,7 +141,16 @@ class Signer:
         raise AnzaError.crypto(f"Unknown signing mode {mode!r}")
 
     def sign(self, message: bytes) -> Optional[str]:
-        """Lowercase-hex signature of ``message``, or ``None`` when signing is off."""
+        """Sign ``message``.
+
+        Args:
+            message: The bytes to sign, normally
+                :meth:`Envelope.message() <anza.Envelope.message>`.
+
+        Returns:
+            str | None: The lowercase-hex signature, or ``None`` when signing
+            is off.
+        """
         if self._hmac is not None:
             mac = self._hmac.copy()
             mac.update(message)
@@ -119,8 +160,16 @@ class Signer:
         return None
 
     def verify(self, message: bytes, signature_hex: str) -> bool:
-        """Check a lowercase-hex signature made by this signer (constant-time).
-        Always ``False`` when signing is off."""
+        """Check a lowercase-hex signature made by this signer, in constant time.
+
+        Args:
+            message: The signed bytes.
+            signature_hex: The signature to check.
+
+        Returns:
+            bool: ``True`` when it matches; always ``False`` when signing is
+            off or the signature is malformed.
+        """
         if self._hmac is not None:
             actual = decode_length(signature_hex, 32)
             if actual is None:

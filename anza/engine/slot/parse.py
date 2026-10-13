@@ -1,3 +1,5 @@
+"""Template parsing: ``{{slot}}`` and ``{{{raw}}}`` placeholders."""
+
 from dataclasses import dataclass
 from typing import Literal
 from ...errors import AnzaError
@@ -5,15 +7,49 @@ from ...errors import AnzaError
 
 @dataclass(frozen=True)
 class Chunk:
-    """``static`` text, a ``slot`` (``{{name}}``, escaped when the engine runs
-    with ``escape=True``) or a ``raw`` slot (``{{{name}}}``, never escaped)."""
+    """One piece of a parsed template.
 
+    ``static`` text, a ``slot`` (``{{name}}``, escaped when the engine runs
+    with ``escape=True``) or a ``raw`` slot (``{{{name}}}``, never escaped).
+
+    Example:
+        >>> from anza import Chunk
+        >>> Chunk(kind="slot", value="title")
+        Chunk(kind='slot', value='title')
+    """
+
+    #: ``"static"``, ``"slot"`` or ``"raw"``.
     kind: Literal["static", "slot", "raw"]
+    #: The static text, or the slot name (whitespace stripped).
     value: str
 
 
 def extract(template: str) -> list[Chunk]:
-    """Split a template into static text and ``{{slot}}`` / ``{{{raw}}}`` chunks."""
+    """Split a template into static text and ``{{slot}}`` / ``{{{raw}}}`` chunks.
+
+    Whitespace around a slot name is ignored (``{{ title }}`` is ``title``).
+
+    Args:
+        template: The template source.
+
+    Returns:
+        list[Chunk]: The chunks in order.
+
+    Raises:
+        AnzaError: ``TEMPLATE`` for an unclosed ``{{`` or ``{{{``, or an empty
+            placeholder.
+
+    Example:
+        >>> from anza import extract
+        >>> extract("<p>{{ name }} {{{html}}}</p>")  # doctest: +NORMALIZE_WHITESPACE
+        [Chunk(kind='static', value='<p>'), Chunk(kind='slot', value='name'),
+         Chunk(kind='static', value=' '), Chunk(kind='raw', value='html'),
+         Chunk(kind='static', value='</p>')]
+        >>> extract("<p>{{name</p>")
+        Traceback (most recent call last):
+            ...
+        anza.errors.AnzaError: [Anza:TEMPLATE] Unclosed slot placeholder '{{' in template
+    """
     chunks: list[Chunk] = []
     cursor = 0
     length = len(template)

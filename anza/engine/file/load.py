@@ -1,3 +1,5 @@
+"""Template loading: read, size-check, parse and digest ``.html`` files."""
+
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -14,10 +16,29 @@ DEFAULT_MAX_TEMPLATE_BYTES = 1024 * 1024
 
 @dataclass
 class Template:
+    """One parsed template, compiled once for fast binding.
+
+    Templates are built by :meth:`Setup.run() <anza.Setup.run>` and looked up
+    with :meth:`Engine.get_template() <anza.Engine.get_template>`.
+
+    Example:
+        >>> from anza import Setup
+        >>> tpl = Setup(root="templates").run().get_template("feed/card.html")
+        >>> tpl.name, tpl.raw
+        ('feed/card.html', '<article>{{title}}</article>')
+        >>> tpl.render({"title": "Hi"})
+        '<article>Hi</article>'
+    """
+
+    #: Name relative to the root, ``/``-separated (``"feed/card.html"``).
     name: str
+    #: Path of the file it was loaded from.
     path: Path
+    #: The template source.
     raw: str
+    #: Lowercase-hex SHA-256 of :attr:`raw`.
     digest: str
+    #: The parsed static text and slots (see :func:`~anza.extract`).
     chunks: list[Chunk]
     #: HTML-escape ``{{slot}}`` values (``Setup.escape``).
     escape: bool = False
@@ -27,9 +48,20 @@ class Template:
         self.renderer = Renderer(self.chunks, self.escape)
 
     def bind(self, params: Any = None) -> str:
+        """Bind ``params`` into the template; same as :meth:`render`.
+
+        Args:
+            params: A dict, ``(key, value)`` pairs, or an object whose public,
+                non-callable attributes are read. ``None`` renders every slot
+                empty.
+
+        Returns:
+            str: The rendered HTML.
+        """
         return self.renderer(params)
 
     def render(self, params: Any = None) -> str:
+        """Bind ``params`` into the template (see :meth:`bind`)."""
         return self.renderer(params)
 
 
