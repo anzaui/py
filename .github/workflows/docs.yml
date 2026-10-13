@@ -1,17 +1,13 @@
 name: Docs
 
-# Builds docs/*.md with the Anza docs generator and deploys the site to
-# GitHub Pages (https://anzaui.github.io/py/). The theme (styles, tokens,
-# docks, view-code) comes from the anza repo checked out at ANZA_REF into
-# .anza/, the CLI from the anza release with the same tag.
+# Builds the Sphinx docs (generated from the docstrings in anza/, Furo theme
+# styled like the Anza docs) and deploys them to GitHub Pages
+# (https://anzaui.github.io/py/).
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
-
-env:
-  ANZA_REF: v0.6.0
 
 permissions:
   contents: read
@@ -27,38 +23,29 @@ jobs:
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - name: Check out the anza theme
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
-          repository: anzaui/anza
-          ref: ${{ env.ANZA_REF }}
-          path: .anza
-          persist-credentials: false
+          python-version: "3.12"
 
-      - name: Download the anza CLI
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          mkdir -p "$RUNNER_TEMP/anza"
-          if gh release download "$ANZA_REF" -R anzaui/anza -p anza-linux-x64 -D "$RUNNER_TEMP/anza"; then
-            mv "$RUNNER_TEMP/anza/anza-linux-x64" "$RUNNER_TEMP/anza/anza"
-          else
-            echo "::warning::no anza-linux-x64 asset on anzaui/anza $ANZA_REF; building the CLI from .anza/tools"
-            cargo build --release --locked --manifest-path .anza/tools/Cargo.toml --target-dir "$RUNNER_TEMP/anza-target"
-            cp "$RUNNER_TEMP/anza-target/release/anza" "$RUNNER_TEMP/anza/anza"
-          fi
-          chmod +x "$RUNNER_TEMP/anza/anza"
-          echo "ANZA=$RUNNER_TEMP/anza/anza" >> "$GITHUB_ENV"
+      - name: Install
+        run: python -m pip install -e .[docs]
 
+      # -W --keep-going: every warning fails the build; -n: so does every
+      # reference that does not resolve.
       - name: Build docs
-        run: '"$ANZA" docs --config docs/config.toml --out _site'
+        run: sphinx-build -W --keep-going -n -b html -d "$RUNNER_TEMP/doctrees" docs _site
+
+      # Run the >>> examples in the docstrings.
+      - name: Test docstring examples
+        run: sphinx-build -W --keep-going -n -b doctest -d "$RUNNER_TEMP/doctrees" docs "$RUNNER_TEMP/doctest"
 
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
 
       # Load every page in headless Chrome under /py/ before deploying: fails on
-      # JS errors, failed requests, a stuck loader or broken soft navigation.
+      # JS errors, failed requests, a missing heading, a stuck loader or a
+      # sidebar click that does not navigate.
       - name: Browser check
         run: |
           npm install --no-save --no-audit --no-fund --prefix "$RUNNER_TEMP/pp" puppeteer-core@24.43.1
