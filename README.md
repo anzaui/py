@@ -109,23 +109,31 @@ rendering rules and signing are in the [documentation](https://anzaui.github.io/
 
 ## Documentation
 
-- Guide and API reference: https://anzaui.github.io/py/
+**https://anzaui.github.io/py/**: guides and the API reference.
+
 - [Engine Contract](https://github.com/anzaui/anza/blob/main/docs/engines/contract.md): the behaviour shared by
   the Rust, TypeScript and Python engines (envelope format, signature v2, page
   resolution, escaping, error codes). `tests/fixtures/` holds vendored copies
   of its golden fixtures.
 - [Changelog](CHANGELOG.md)
 
-The docs are markdown in `docs/` (pages and sidebar in `docs/config.toml`),
-built with `anza docs` and deployed to GitHub Pages by
-`.github/workflows/docs.yml`. To build them locally you need the
-[Anza CLI](https://github.com/anzaui/anza/releases) and the anza repo's theme
-in `.anza/`:
+The docs are generated from the docstrings in `anza/` with
+[Sphinx](https://www.sphinx-doc.org/) (autodoc + napoleon, Google style) and
+the [Furo](https://pradyunsg.me/furo/) theme styled like the Anza docs
+(`docs/conf.py`, `docs/_static/anza.css`). `.github/workflows/docs.yml` builds
+and deploys them to GitHub Pages. To build them locally (Python 3.12+):
 
 ```bash
-git clone --depth 1 --branch v0.6.0 https://github.com/anzaui/anza .anza
-ANZA=/path/to/anza docs/build.sh     # writes _site/, served under /py/
+python -m pip install -e ".[docs]"
+sphinx-build -W --keep-going -n -b html -d _build/doctrees docs _site      # warnings and broken references fail
+sphinx-build -W --keep-going -n -b doctest -d _build/doctrees docs _build/doctest  # run the >>> examples
+python -m http.server -d _site 8000                                        # http://localhost:8000/
 ```
+
+`node docs/check.mjs _site /py` loads every page in headless Chrome under
+`/py/` (as on GitHub Pages) and fails on JS errors, failed requests or broken
+navigation; it needs `PUPPETEER_CORE` (path to puppeteer-core's ESM entry) and
+Chrome (`CHROME_PATH`).
 
 ## Releasing
 

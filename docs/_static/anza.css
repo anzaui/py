@@ -1,0 +1,729 @@
+/**
+ * docs/_static/anza.css
+ *
+ * Furo restyled to follow the Anza web design (anza repo, web/src/tokens and
+ * web/src/docks/docs): the same fonts, palette, sidebar and landing hero.
+ * Furo's own colour variables are set in conf.py (light_css_variables /
+ * dark_css_variables); this file adds the fonts and the component styles.
+ */
+
+/* ─── Fonts (self-hosted, SIL OFL 1.1, see fonts/OFL.txt) ─────────── */
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('fonts/inter-latin.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('fonts/inter-italic-latin.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 100 800;
+  font-display: swap;
+  src: url('fonts/jetbrains-mono-latin.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: italic;
+  font-weight: 100 800;
+  font-display: swap;
+  src: url('fonts/jetbrains-mono-italic-latin.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url('fonts/plus-jakarta-sans-latin.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: italic;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url('fonts/plus-jakarta-sans-italic-latin.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Work Sans';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('fonts/work-sans-latin.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Work Sans';
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('fonts/work-sans-italic-latin.woff2') format('woff2');
+}
+
+/* ─── Anza tokens (light, then dark for data-theme and auto) ──────── */
+
+body {
+  --anza-font-ui: 'Work Sans', 'Inter', system-ui, sans-serif;
+  --anza-brand: oklch(62% 0.17 145);
+  --anza-accent: #07a45f;
+  --anza-title: #1f2937;
+  --anza-text: #494d52;
+  --anza-nav: #676c72;
+  --anza-gray: #6b7280;
+  --anza-surface: #edeee4;
+  --anza-surface-raised: #edebe9;
+  --anza-border: color-mix(in oklch, #494d52 10%, transparent);
+  --anza-hover: color-mix(in oklch, #494d52 6%, transparent);
+  --anza-accent-soft: color-mix(in oklch, #07a45f 9%, transparent);
+  --anza-badge: color-mix(in oklch, #07a45f 12%, transparent);
+  --anza-selection: #c8f5e3;
+  --anza-shadow: rgba(0, 0, 0, 0.04);
+}
+
+body[data-theme="dark"] {
+  --anza-accent: #09d379;
+  --anza-title: #f6f7f8;
+  --anza-text: #c4d2e4;
+  --anza-nav: #dde2e5;
+  --anza-gray: #7f95ad;
+  --anza-surface: #141a0e;
+  --anza-surface-raised: #1e2818;
+  --anza-border: #283018;
+  --anza-hover: color-mix(in oklch, #c4d2e4 6%, transparent);
+  --anza-accent-soft: color-mix(in oklch, #09d379 9%, transparent);
+  --anza-badge: color-mix(in oklch, #09d379 14%, transparent);
+  --anza-selection: #304020;
+  --anza-shadow: rgba(0, 0, 0, 0.45);
+}
+
+@media (prefers-color-scheme: dark) {
+  body:not([data-theme="light"]) {
+    --anza-accent: #09d379;
+    --anza-title: #f6f7f8;
+    --anza-text: #c4d2e4;
+    --anza-nav: #dde2e5;
+    --anza-gray: #7f95ad;
+    --anza-surface: #141a0e;
+    --anza-surface-raised: #1e2818;
+    --anza-border: #283018;
+    --anza-hover: color-mix(in oklch, #c4d2e4 6%, transparent);
+    --anza-accent-soft: color-mix(in oklch, #09d379 9%, transparent);
+    --anza-badge: color-mix(in oklch, #09d379 14%, transparent);
+    --anza-selection: #304020;
+    --anza-shadow: rgba(0, 0, 0, 0.45);
+  }
+}
+
+::selection {
+  background: var(--anza-selection);
+}
+
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--anza-border) transparent;
+}
+
+/* ─── Typography ──────────────────────────────────────────────────── */
+
+article[role="main"] {
+  font-size: 0.98rem;
+  line-height: 1.6;
+}
+
+article[role="main"] p,
+article[role="main"] li,
+article[role="main"] dd {
+  color: var(--color-foreground-primary);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-stack--headings);
+  color: var(--anza-title);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+h1 { font-size: 1.6rem; font-weight: 700; margin: 0 0 0.75rem; }
+h2 { font-size: 1.25rem; font-weight: 600; margin-top: 2.25rem; }
+h3 { font-size: 1.05rem; font-weight: 600; margin-top: 1.5rem; }
+h4, h5, h6 { font-size: 0.95rem; font-weight: 600; }
+
+p.rubric {
+  font-family: var(--font-stack--headings);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--anza-title);
+  margin-top: 1.75rem;
+}
+
+a.headerlink {
+  color: var(--anza-accent);
+}
+
+article[role="main"] a.reference {
+  font-weight: 500;
+  text-decoration: none;
+}
+
+article[role="main"] a.reference:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ─── Code ────────────────────────────────────────────────────────── */
+
+code.literal,
+.sig-inline {
+  border: none;
+  border-radius: 6px;
+  padding: 0.12em 0.4em;
+  font-size: 0.86em;
+}
+
+a.reference code.literal {
+  color: inherit;
+}
+
+div.highlight {
+  border-radius: 8px;
+}
+
+div[class*="highlight-"] {
+  margin: 1rem 0;
+}
+
+.highlight pre,
+pre.literal-block {
+  border: 1px solid var(--anza-border);
+  border-radius: 8px;
+  padding: 1.1rem 1.25rem;
+  font-size: 0.82rem;
+  line-height: 1.65;
+  scrollbar-width: thin;
+  scrollbar-color: var(--anza-border) transparent;
+}
+
+button.copybtn {
+  border-radius: 6px;
+}
+
+/* ─── Tables (Anza: Work Sans, uppercase header, rounded frame) ──── */
+
+article[role="main"] table.docutils {
+  font-family: var(--anza-font-ui);
+  border: 1px solid var(--color-table-border);
+  border-radius: 8px;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+  box-shadow: none;
+  background: var(--color-background-secondary);
+}
+
+article[role="main"] table.docutils th {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--anza-title);
+  border: none;
+  border-bottom: 1px solid var(--color-table-border);
+  padding: 0.75rem 1rem;
+}
+
+article[role="main"] table.docutils td {
+  border: none;
+  border-bottom: 1px solid var(--color-table-border);
+  padding: 0.75rem 1rem;
+  background: var(--color-background-primary);
+}
+
+article[role="main"] table.docutils tr:nth-child(even) td {
+  background: var(--color-background-secondary);
+}
+
+article[role="main"] table.docutils tr:last-child td {
+  border-bottom: none;
+}
+
+table.autosummary td:first-child {
+  white-space: nowrap;
+}
+
+/* ─── Admonitions ─────────────────────────────────────────────────── */
+
+.admonition {
+  border-radius: 8px;
+  box-shadow: none;
+  border: 1px solid var(--anza-border);
+  border-left-width: 3px;
+  overflow: hidden;
+}
+
+.admonition > .admonition-title {
+  font-family: var(--anza-font-ui);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* ─── API signatures ──────────────────────────────────────────────── */
+
+dl.py > dt.sig {
+  font-family: var(--font-stack--monospace);
+  font-size: 0.85rem;
+  background: var(--anza-surface);
+  border: 1px solid var(--anza-border);
+  border-left: 3px solid var(--anza-accent);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem 0.5rem 0.9rem;
+  text-indent: 0;
+  margin-bottom: 0.5rem;
+}
+
+dl.py > dt.sig .sig-name {
+  color: var(--color-api-name);
+  font-weight: 700;
+}
+
+dl.py dl.py > dt.sig {
+  border-left-color: color-mix(in oklch, var(--anza-accent) 45%, transparent);
+  background: transparent;
+}
+
+dl.py > dt.sig .reference.internal,
+dl.py > dt.sig .viewcode-link {
+  font-family: var(--anza-font-ui);
+}
+
+dl.field-list > dt {
+  font-family: var(--anza-font-ui);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--anza-text);
+}
+
+/* ─── Header, theme toggle, mobile ────────────────────────────────── */
+
+.mobile-header {
+  font-family: var(--anza-font-ui);
+}
+
+.theme-toggle {
+  width: 42px;
+  height: 26px;
+  border-radius: 999px;
+  background: var(--anza-surface);
+  border: 1px solid var(--anza-border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 300ms ease, border-color 300ms ease;
+}
+
+.theme-toggle:hover {
+  border-color: color-mix(in oklch, var(--anza-accent) 40%, transparent);
+}
+
+.theme-toggle svg {
+  color: var(--anza-accent);
+  width: 1rem;
+  height: 1rem;
+}
+
+body[data-theme="dark"] .theme-toggle {
+  background: color-mix(in oklch, var(--anza-accent) 10%, transparent);
+  border-color: color-mix(in oklch, var(--anza-accent) 22%, transparent);
+}
+
+.content-icon-container {
+  align-items: center;
+}
+
+/* ─── Sidebar (Anza docs dock) ────────────────────────────────────── */
+
+.sidebar-drawer {
+  border-right: 1px solid var(--color-sidebar-background-border);
+}
+
+.sidebar-container,
+.toc-drawer {
+  font-family: var(--anza-font-ui);
+}
+
+.sidebar-brand.anza-brand {
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 9px;
+  padding: 0.9rem var(--sidebar-item-spacing-horizontal) 0.6rem;
+  text-decoration: none;
+}
+
+.anza-brand-logo {
+  width: 24px;
+  height: 24px;
+  margin: 0;
+}
+
+.anza-brand .sidebar-brand-text {
+  font-family: var(--font-stack--headings);
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--anza-title);
+  margin: 0;
+}
+
+.anza-brand-version {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--anza-accent);
+  background: var(--anza-badge);
+  padding: 2px 7px;
+  border-radius: 999px;
+  letter-spacing: 0.01em;
+  line-height: 1.6;
+}
+
+.anza-brand-tag {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--anza-nav);
+  border: 1px solid var(--anza-border);
+  padding: 1px 7px;
+  border-radius: 999px;
+  line-height: 1.6;
+}
+
+.sidebar-search-container {
+  margin: 0.25rem 0.75rem 0.5rem;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--color-sidebar-search-border);
+}
+
+.sidebar-search-container:focus-within {
+  border-color: color-mix(in oklch, var(--anza-accent) 50%, transparent);
+}
+
+.sidebar-search {
+  border: none;
+  font-size: 12.5px;
+  font-family: var(--anza-font-ui);
+}
+
+.sidebar-tree {
+  margin-top: 0.5rem;
+  padding: 0 0.5rem;
+}
+
+.sidebar-tree .caption,
+.sidebar-tree :not(.caption) > .caption-text {
+  font-family: var(--anza-font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--anza-text);
+  padding: 1.1rem 8px 0.35rem;
+  margin: 0;
+}
+
+.sidebar-tree ul {
+  margin: 0;
+}
+
+.sidebar-tree li > ul {
+  margin-left: 0.6rem;
+}
+
+.sidebar-tree .reference {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--anza-nav);
+  border-radius: 6px;
+  padding: 5px 8px 5px 18px;
+  position: relative;
+  transition: color 120ms ease, background 120ms ease;
+}
+
+.sidebar-tree .reference:hover {
+  color: var(--anza-title);
+  background: var(--anza-hover);
+}
+
+.sidebar-tree .current-page > .reference,
+.sidebar-tree .current > .reference.current {
+  color: var(--anza-accent);
+  background: var(--anza-accent-soft);
+  font-weight: 500;
+}
+
+.sidebar-tree .current-page > .reference::before {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--anza-accent);
+}
+
+.sidebar-tree label {
+  border-radius: 6px;
+}
+
+.sidebar-tree label:hover {
+  background: var(--anza-hover);
+}
+
+.sidebar-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--anza-border) transparent;
+}
+
+/* ─── Right-hand TOC ──────────────────────────────────────────────── */
+
+.toc-title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--anza-text);
+}
+
+.toc-tree {
+  border-left: 1px solid var(--anza-border);
+  font-size: 12.5px;
+}
+
+.toc-tree a {
+  border-radius: 5px;
+}
+
+.toc-tree li.scroll-current > .reference {
+  color: var(--anza-accent);
+  font-weight: 500;
+}
+
+/* ─── Footer ──────────────────────────────────────────────────────── */
+
+footer {
+  font-family: var(--anza-font-ui);
+}
+
+.related-pages a {
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  transition: background 120ms ease;
+}
+
+.related-pages a:hover {
+  background: var(--anza-hover);
+}
+
+/* ─── Landing (Anza entry page) ───────────────────────────────────── */
+
+section.landing > h1 {
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(3.5rem, 9vw, 5.5rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  margin: 2.5rem 0 0.5rem;
+  background: linear-gradient(135deg, var(--anza-text) 0%, var(--anza-gray) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+section.landing > h1::before {
+  content: '';
+  display: inline-block;
+  width: 0.5em;
+  height: 0.5em;
+  margin-right: 0.25em;
+  vertical-align: 0.12em;
+  background: url('logo.svg') center / contain no-repeat;
+}
+
+section.landing > h1 > a.headerlink {
+  display: none;
+}
+
+section.landing > p.hero-badge {
+  display: block;
+  width: max-content;
+  margin: 0.75rem auto 1.25rem;
+  font-family: var(--font-stack--monospace);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--anza-text);
+  background: rgba(120, 120, 120, 0.08);
+  border: 1px solid rgba(120, 120, 120, 0.15);
+  border-radius: 999px;
+  padding: 0.2rem 0.8rem;
+}
+
+section.landing > p.hero-tagline {
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.35;
+  color: var(--anza-text);
+  margin: 0 0 1rem;
+}
+
+.hero-tagline .wavy {
+  text-decoration: underline wavy var(--anza-accent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 7px;
+}
+
+.hero-tagline .nudge {
+  background: linear-gradient(135deg, #07a45fb7 0%, #4ecdc4 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+section.landing > p.hero-lead {
+  text-align: center;
+  max-width: 36rem;
+  margin: 0 auto 1.5rem;
+  color: var(--anza-gray);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+section.landing > div.hero-code {
+  max-width: 34rem;
+  margin: 0 auto;
+}
+
+section.landing > div.hero-code pre {
+  border-radius: 12px;
+}
+
+section.landing > ul.hero-actions {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0;
+  margin: 1.5rem 0 3rem;
+}
+
+section.landing > ul.hero-actions > li {
+  margin: 0;
+}
+
+section.landing > ul.hero-actions a.reference {
+  display: inline-flex;
+  align-items: center;
+  height: 2.6rem;
+  padding: 0 1.4rem;
+  border-radius: 999px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--anza-text);
+  background: rgba(120, 120, 120, 0.08);
+  border: 1px solid rgba(120, 120, 120, 0.18);
+  text-decoration: none;
+  transition: transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease;
+}
+
+section.landing > ul.hero-actions a.reference:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px var(--anza-shadow);
+  border-color: color-mix(in oklch, var(--anza-accent) 50%, transparent);
+  text-decoration: none;
+}
+
+section.landing > ul.hero-actions > li:first-child a.reference {
+  color: var(--anza-accent);
+  border-color: var(--anza-accent);
+  background: var(--anza-accent-soft);
+}
+
+section.landing > section > h2 {
+  border-top: 1px solid var(--anza-border);
+  padding-top: 2rem;
+}
+
+@media (max-width: 46em) {
+  section.landing > h1 {
+    margin-top: 1rem;
+  }
+
+  section.landing > ul.hero-actions a.reference {
+    height: 2.3rem;
+    padding: 0 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}
+
+/* ─── Overrides ───────────────────────────────────────────────────── */
+
+/* Code blocks use the Anza surfaces in both themes (Pygments' dark style
+   ships its own near-black background). */
+.highlight,
+body[data-theme="dark"] .highlight {
+  background: var(--color-code-background) !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  body:not([data-theme="light"]) .highlight {
+    background: var(--color-code-background) !important;
+  }
+}
+
+code,
+pre,
+kbd,
+.sig {
+  font-variant-ligatures: none;
+}
+
+.toc-tree code.literal,
+.sidebar-tree code.literal {
+  background: none;
+  padding: 0;
+  font-size: inherit;
+}
+
+article[role="main"] > section > h1,
+article[role="main"] > h1 {
+  margin-top: 0.5rem;
+}
+
+.theme-toggle-container {
+  margin-right: 0.5rem;
+}

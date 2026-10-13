@@ -25,9 +25,9 @@ htmlcov/
 venv/
 ENV/
 env/
-# Docs build (docs/build.sh) and the anza checkout it reads the theme from
+# Docs build (sphinx-build ... docs _site, doctrees in _build/)
 _site/
-.anza
+_build/
 *.db
 *.db-wal
 *.db-shm

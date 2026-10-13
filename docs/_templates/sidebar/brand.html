@@ -1,0 +1,9 @@
+{#- The Anza docs header brand: logo mark, name and version pill. -#}
+<a class="sidebar-brand anza-brand" href="{{ pathto(master_doc) }}">
+  {%- if logo_url %}
+  <img class="sidebar-logo anza-brand-logo" src="{{ logo_url }}" alt="" width="24" height="24"/>
+  {%- endif %}
+  <span class="sidebar-brand-text">anza</span>
+  <span class="anza-brand-version">v{{ release }}</span>
+  <span class="anza-brand-tag">Python</span>
+</a>
