@@ -25,7 +25,10 @@ htmlcov/
 venv/
 ENV/
 env/
-book/
+# Docs build (docs/build.sh) and the anza checkout it reads the theme from
+_site/
+_site.raw/
+.anza
 *.db
 *.db-wal
 *.db-shm

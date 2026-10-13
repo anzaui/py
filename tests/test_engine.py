@@ -20,7 +20,9 @@ class TestAnzaEngine(unittest.TestCase):
             encoding="utf-8",
         )
         (self.root / "pages" / "home.html").write_text(
-            '<section class="hero"><h1>{{title}}</h1><p>Count: {{count}}</p></section>',
+            '<page-home><template shadowrootmode="open">'
+            '<section class="hero"><h1>{{title}}</h1><p>Count: {{count}}</p></section>'
+            "</template></page-home>",
             encoding="utf-8",
         )
         (self.root / "feed" / "card.html").write_text(
@@ -53,6 +55,16 @@ class TestAnzaEngine(unittest.TestCase):
         self.assertIn("<h1>Anza Home</h1>", doc.html)
         self.assertIn("<p>Count: 42</p>", doc.html)
         self.assertIn("</template></page-home>", doc.html)
+
+    def test_page_route_cannot_escape_template_root(self):
+        secret = self.root.parent / f"{self.root.name}-secret.html"
+        secret.write_text("<p>secret</p>", encoding="utf-8")
+        try:
+            engine = Setup(root=str(self.root)).run()
+            with self.assertRaises(Exception):
+                Page(f"/../../{self.root.name}-secret", {}).run(engine)
+        finally:
+            secret.unlink()
 
     def test_fragment_rendering(self):
         engine = Setup(root=str(self.root)).run()
