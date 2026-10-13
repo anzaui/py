@@ -2,6 +2,14 @@
 
 All notable changes to the Python template and STUI streaming engine are documented here.
 
+## [0.6.1](https://github.com/anzaui/py/compare/v0.6.0...v0.6.1) (2026-10-13)
+
+
+### Documentation
+
+* document the public API in docstrings ([2974876](https://github.com/anzaui/py/commit/297487699f089f014520c369353c0b737693dc01))
+* generate the site from the code with Sphinx and Furo ([762ac95](https://github.com/anzaui/py/commit/762ac9535618ab26795286e35d6eba57df8f4309))
+
 ## [0.6.0] — 2026-10-13
 
 The hardening release. This repository now versions the engine on its own (from 0.6.0); earlier 0.5.x versions followed the Anza release.
