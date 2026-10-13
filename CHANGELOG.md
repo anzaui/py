@@ -2,6 +2,30 @@
 
 All notable changes to the Python template and STUI streaming engine are documented here.
 
+## [0.7.0](https://github.com/anzaui/py/compare/v0.6.0...v0.7.0) (2026-10-13)
+
+
+### ⚠ BREAKING CHANGES
+
+* 0.6.0 hardened engine (signature v2, contract, escaping)
+
+### Features
+
+* 0.6.0 hardened engine (signature v2, contract, escaping) ([1fdc17d](https://github.com/anzaui/py/commit/1fdc17db68da8aaa7b7aa3ca384001c87cbce153))
+* initial commit of anza python stui engine ([07d49e2](https://github.com/anzaui/py/commit/07d49e21d6039b99fe7a5b0d13665f4ae39851ef))
+
+
+### Bug Fixes
+
+* **crypto:** implement rfc8032 ed25519 and add readme/license ([086ad30](https://github.com/anzaui/py/commit/086ad30ddf961d86620b71cd988dfc44d7272440))
+
+
+### Documentation
+
+* add an anza docs site deployed to GitHub Pages ([369413a](https://github.com/anzaui/py/commit/369413a2c750e1330141451d772082c100910946))
+* build with plain anza docs (site.base support), logo favicon ([37f3c83](https://github.com/anzaui/py/commit/37f3c83700e503e6ad957ac0b4f9b1425a8eb4d9))
+* streamline readme and set copyright to aduki, Labs ([ae19fee](https://github.com/anzaui/py/commit/ae19fee46c4d99231e1e850b13fdcabd877b9574))
+
 ## [0.6.0] — 2026-10-13
 
 The hardening release. This repository now versions the engine on its own (from 0.6.0); earlier 0.5.x versions followed the Anza release.
